@@ -14,6 +14,7 @@
       dnf:
         name:
           - wget
+          - git
           - fontconfig
           - java-17-openjdk-devel
         state: present
