@@ -138,3 +138,29 @@
       systemd:
         name: firewalld
         state: reloaded
+
+- name: configure Ansible Master 
+  hosts: master #localhost - ansible master
+  tasks:
+    - name: create jenkins JENKINS_USER
+      ansible.builtin.user:
+        name: jenkins 
+        state: present
+        ssh_key_bits: 4096
+        ssh_key_type: rsa
+         
+    
+- name: setup jenkins passwordless key, and provide sudo
+  hosts: allservers #all managed nodes
+  tasks:
+    - name: enable keybased auth/passwordless auth (ssh-copy-id)
+      ansible.posix.authorized_key:
+        user: auto1
+        state: present
+        key: "{{ lookup('file', '/home/jenkins/.ssh/id_rsa.pub') }}"
+    - name: grant sudo by adding in /etc/sudoers.d/admins
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/admins
+        line: "jenkins ALL=(ALL) NOPASSWD: ALL"
+        state: present
+        create: yes
